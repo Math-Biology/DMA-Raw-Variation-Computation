@@ -1,31 +1,33 @@
 # raw_variation
 
-Calcola la variazione percentuale rispetto al valore basale per dati di visita in formato Excel.
+**Component Code:** `#L001-U015-P26.0234`
 
-## Funzionamento
+Computes the percentage variation relative to the baseline value for visit data in Excel format.
 
-Per ogni cartella-visita in `Input/`, e per ogni foglio di ogni file `.xlsx`, il modulo:
+## How it works
 
-1. Identifica il valore basale della colonna (il minimo tra i valori positivi)
-2. Calcola la variazione percentuale di ogni riga rispetto a quel basale
-3. Salva in `Output/` due file per ogni foglio:
-   - `*_originale.xlsx` — dati grezzi originali
-   - `*_variazione_percentuale.xlsx` — variazioni percentuali
+For each visit folder in `Input/`, and for each sheet of every `.xlsx` file, the module:
 
-## Struttura
+1. Identifies the baseline value for each column (the minimum among all positive values)
+2. Computes the percentage variation of each row relative to that baseline
+3. Saves two files per sheet in `Output/`:
+   - `*_original.xlsx` — raw original data
+   - `*_percentage_variation.xlsx` — percentage variations
+
+## Structure
 
 ```
 raw_variation/
-├── raw_variation.py   # script principale
-├── config.xml         # parametri di configurazione
-├── requirements.txt   # dipendenze Python
-├── Input/             # cartelle-visita con file .xlsx
-└── Output/            # risultati generati
+├── raw_variation.py   # main script
+├── config.xml         # configuration parameters
+├── requirements.txt   # Python dependencies
+├── Input/             # visit folders containing .xlsx files
+└── Output/            # generated results
 ```
 
-## Configurazione
+## Configuration
 
-Modifica `config.xml` per cambiare i percorsi di input/output o i parametri soglia:
+Edit `config.xml` to change input/output paths or threshold parameters:
 
 ```xml
 <file_config>
@@ -34,13 +36,13 @@ Modifica `config.xml` per cambiare i percorsi di input/output o i parametri sogl
 </file_config>
 ```
 
-## Utilizzo
+## Usage
 
 ```bash
 pip install -r requirements.txt
 python raw_variation.py
 ```
 
-## Requisiti
+## Requirements
 
-Vedi `requirements.txt`. Dipendenze principali: `pandas`, `numpy`, `openpyxl`.
+See `requirements.txt`. Main dependencies: `pandas`, `numpy`, `openpyxl`.

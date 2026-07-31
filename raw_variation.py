@@ -1,3 +1,4 @@
+# COMPONENT: #L001-U015-P26.0234
 # LINKED-TO: [REQ-COMP-P26.0073]
 import pandas as pd
 import xml.etree.ElementTree as ET
@@ -36,75 +37,85 @@ def load_config(xml_file):
     return file_config, visit_config, it_config
 
 
-file_config, visit_config, it_config = load_config("config.xml")
+def compute_percentage_variations(df):
+    df_results = df.copy()
 
-input_path = file_config["input_path"]
-output_path = file_config["output_path"]
+    for column in df.columns[1:]:
+        values = df[column].values
+        positive_values = values[values > 0]
+        if len(positive_values) == 0:
+            continue
 
-soglia1 = visit_config["threshold_1"]
+        base = df[column][0]
+        baseline_values = df[column].values
+        min_val = min(x for x in baseline_values if x > 0)
 
-original = it_config["original"]
-percentage_variation = it_config["percentage_variation"]
+        if base != min_val:
+            base = min_val
 
-cartella_originale = input_path
+        percentage_variations = [(value - base) / base * 100 for value in df[column][1:]]
+        df_results[column] = df_results[column].astype(float)
+        df_results.loc[1:, column] = percentage_variations
 
-for folder_name in os.listdir(cartella_originale):
-    folder_path = os.path.join(cartella_originale, folder_name)
+    df_results = df_results.iloc[1:]
+    return df_results
 
-    if not os.path.isdir(folder_path):
-        print(f"{folder_name} non è una cartella")
-        continue
 
-    visita = folder_name
-    print(f"Visita = {visita}")
-    cartella = cartella_originale + visita
-    files = os.listdir(cartella)
+def run(config_path="config.xml"):
+    file_config, visit_config, it_config = load_config(config_path)
 
-    for file in files:
-        nome_file_senza_estensione = file.rstrip(".xlsx")
-        cartella_destinazione = output_path + f"{visita}" + "_" + f"{nome_file_senza_estensione}"
+    input_path = file_config["input_path"]
+    output_path = file_config["output_path"]
 
-        if file.endswith('.xlsx') or file.endswith('.xls') and '_p' not in file:
-            percorso_file = os.path.join(cartella, file)
-            df_dict = pd.read_excel(percorso_file, sheet_name=None)
-            sheets_to_remove = {"Screening Protocol", "Notes"}
-            df_dict = {name: df for name, df in df_dict.items() if name not in sheets_to_remove}
+    threshold1 = visit_config["threshold_1"]  # noqa: F841
 
-            for sheet_name, df in df_dict.items():
-                df.replace({0: np.nan, None: np.nan, pd.NA: np.nan}, inplace=True)
+    original = it_config["original"]
+    percentage_variation = it_config["percentage_variation"]
 
-                df_risultati = df.copy()
+    input_folder = input_path
 
-                for colonna in df.columns[1:]:
-                    valori = df[colonna].values
-                    valori_positivi = valori[valori > 0]
-                    if len(valori_positivi) == 0:
-                        continue
+    for folder_name in os.listdir(input_folder):
+        folder_path = os.path.join(input_folder, folder_name)
 
-                    base = df[colonna][0]
-                    valori_basali = df[colonna].values
-                    min_val = min(x for x in valori_basali if x > 0)
+        if not os.path.isdir(folder_path):
+            print(f"{folder_name} is not a folder")
+            continue
 
-                    if base != min_val:
-                        base = min_val
+        visit = folder_name
+        print(f"Visit = {visit}")
+        visit_folder = input_folder + visit
+        files = os.listdir(visit_folder)
 
-                    variazioni_percentuali = [(valore - base) / base * 100 for valore in df[colonna][1:]]
-                    df_risultati[colonna] = df_risultati[colonna].astype(float)
-                    df_risultati.loc[1:, colonna] = variazioni_percentuali
+        for file in files:
+            filename_no_ext = os.path.splitext(file)[0]
+            output_folder = output_path + f"{visit}" + "_" + f"{filename_no_ext}"
 
-                df_risultati = df_risultati.iloc[1:]
+            if file.endswith('.xlsx') or file.endswith('.xls') and '_p' not in file:
+                file_path = os.path.join(visit_folder, file)
+                df_dict = pd.read_excel(file_path, sheet_name=None)
+                sheets_to_remove = {"Screening Protocol", "Notes"}
+                df_dict = {name: df for name, df in df_dict.items() if name not in sheets_to_remove}
 
-                sheet_name_clean = clean_filename(sheet_name)
-                folder_out = cartella_destinazione + '_' + f"{sheet_name_clean}"
-                if not os.path.exists(folder_out):
-                    os.makedirs(folder_out)
+                for sheet_name, df in df_dict.items():
+                    df.replace({0: np.nan, None: np.nan, pd.NA: np.nan}, inplace=True)
 
-                percorso_originale = os.path.join(folder_out,
-                    f"{nome_file_senza_estensione}_{sheet_name_clean}_{original}.xlsx")
-                df.to_excel(percorso_originale, index=False)
+                    df_results = compute_percentage_variations(df)
 
-                percorso_variazione = os.path.join(folder_out,
-                    f"{nome_file_senza_estensione}_{sheet_name_clean}_{percentage_variation}.xlsx")
-                df_risultati.to_excel(percorso_variazione, index=False)
+                    sheet_name_clean = clean_filename(sheet_name)
+                    folder_out = output_folder + '_' + f"{sheet_name_clean}"
+                    if not os.path.exists(folder_out):
+                        os.makedirs(folder_out)
 
-                print(f"Salvato: {percorso_variazione}")
+                    original_path = os.path.join(folder_out,
+                        f"{filename_no_ext}_{sheet_name_clean}_{original}.xlsx")
+                    df.to_excel(original_path, index=False)
+
+                    variation_path = os.path.join(folder_out,
+                        f"{filename_no_ext}_{sheet_name_clean}_{percentage_variation}.xlsx")
+                    df_results.to_excel(variation_path, index=False)
+
+                    print(f"Saved: {variation_path}")
+
+
+if __name__ == "__main__":
+    run()
