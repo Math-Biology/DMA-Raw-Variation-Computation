@@ -1,0 +1,28 @@
+<config>
+    <!-- Configuring folder path -->
+    <file_config>
+        <input_path>./Input/</input_path>
+        <output_path>./Output/</output_path>
+    </file_config>
+    <!-- Configuring DMA Algorithm parameters -->
+    <visit_config>
+        <threshold_1>200</threshold_1>
+        <threshold_2>4</threshold_2>
+        <threshold_3>0.4</threshold_3>
+        <threshold_4>300</threshold_4>
+        <threshold_5>100</threshold_5>
+        <threshold_6>300</threshold_6>
+        <threshold_7>2</threshold_7>
+        <threshold_8>10</threshold_8>
+    </visit_config>
+    <!-- Configuring Italian words in the code -->
+    <it_config>
+        <original>originale</original>
+        <percentage_variation>variazione_percentuale</percentage_variation>
+        <new_base>nuova_base</new_base>
+        <fane_values>valori_fane</fane_values>
+        <visual_correction>correzione_estetica</visual_correction>
+        <bmri>BMRi</bmri>
+        <final_report>report_finale</final_report>
+    </it_config>
+</config>
