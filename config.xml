@@ -4,6 +4,7 @@
     <file_config>
         <input_path>./Input/</input_path>
         <output_path>./Output/</output_path>
+        <exported_visits_file>exported_visits.xlsx</exported_visits_file>
     </file_config>
     <!-- Configuring DMA Algorithm parameters -->
     <visit_config>
