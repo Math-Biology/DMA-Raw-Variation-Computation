@@ -182,6 +182,10 @@ def run_exported(config_path="config.xml"):
         if (i + 1) % 500 == 0:
             print(f"Processed {i + 1}/{len(sheets)} visits...")
 
+    if not original_dfs:
+        print("No valid visits found in the input file. Nothing to save.")
+        return
+
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 

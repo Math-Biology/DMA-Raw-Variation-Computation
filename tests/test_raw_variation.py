@@ -332,3 +332,30 @@ class TestRunExported:
     def test_short_sheet_skipped_without_error(self, workspace):
         df = pd.read_csv(workspace["output_dir"] / "all_visits_original.csv")
         assert 99 not in df["visit_id"].values
+
+
+    def test_all_sheets_invalid_exits_without_crash(self, tmp_path_factory):
+        tmp_path = tmp_path_factory.mktemp("all_invalid")
+        input_dir = tmp_path / "Input"
+        input_dir.mkdir()
+        output_dir = tmp_path / "Output"
+        output_dir.mkdir()
+
+        wb = Workbook()
+        wb.remove(wb.active)
+        ws = wb.create_sheet("Visita_1")
+        ws.append(["Patient ID", "First Name", "Last Name", "Gender",
+                   "Age at Visit", "Date of Birth", "Visit ID", "Visit Date"])
+        ws.append([999, "Test", "Solo", "F", None, "1990-01-01", 1, "2024-01-01"])
+        wb.save(str(input_dir / self.EXPORTED_FILE))
+
+        config_path = tmp_path / "config.xml"
+        config_path.write_text(CONFIG_TEMPLATE.format(
+            input_path=str(input_dir) + os.sep,
+            output_path=str(output_dir) + os.sep,
+            exported_visits_file=self.EXPORTED_FILE,
+        ))
+
+        run_exported(config_path=str(config_path))
+        assert not (output_dir / "all_visits_original.csv").exists()
+        assert not (output_dir / "all_visits_percentage_variation.csv").exists()
