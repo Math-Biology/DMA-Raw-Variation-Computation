@@ -1,0 +1,2 @@
+\contentsline {section}{\numberline {1}Median $\delta $ by Anatomical Point}{2}{section.1}%
+\contentsline {section}{\numberline {2}Median $\delta $ per Point --- Full Table}{4}{section.2}%
